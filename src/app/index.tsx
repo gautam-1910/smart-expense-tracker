@@ -1,13 +1,13 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { AnimatedIcon } from '@/components/animated-icon';
 import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import * as Device from 'expo-device';
+import { Platform, Pressable, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../theme/ThemeContext';
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -29,6 +29,7 @@ function getDevMenuHint() {
 }
 
 export default function HomeScreen() {
+  const { colors, mode, setMode } = useTheme();
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -56,6 +57,13 @@ export default function HomeScreen() {
         </ThemedView>
 
         {Platform.OS === 'web' && <WebBadge />}
+        <Text style={{ color: colors.text }}>Mode: {mode}</Text>
+        <Pressable onPress={() => setMode('dark')}>
+          <Text style={{ color: colors.text }}>Dark</Text>
+        </Pressable>
+        <Pressable onPress={() => setMode('light')}>
+          <Text style={{ color: colors.text }}>Light</Text>
+        </Pressable>
       </SafeAreaView>
     </ThemedView>
   );
