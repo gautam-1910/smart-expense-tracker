@@ -4,6 +4,7 @@ import DateTimePicker, {
 } from '@react-native-community/datetimepicker';
 import { useMemo, useState } from 'react';
 import {
+  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -13,6 +14,7 @@ import {
   View,
 } from 'react-native';
 
+import { getDb } from '../db/database';
 import { useTheme } from '../theme/ThemeContext';
 
 const CATEGORIES = [
@@ -169,19 +171,41 @@ export default function AddScreen() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!canSave || !selectedCategory) return;
 
     const customName = customCategoryName.trim();
     const category =
       isOthers && customName.length > 0 ? customName : selectedCategory;
 
-    console.log({
-      amount,
-      category,
-      date: date.toISOString(),
-      note,
-    });
+    try {
+      const db = getDb();
+      const id =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : Date.now().toString();
+
+      await db.runAsync(
+        'INSERT INTO expenses (id, amount, category, note, date, merchant) VALUES (?, ?, ?, ?, ?, ?)',
+        id,
+        Number(amount),
+        category,
+        note,
+        date.toISOString(),
+        '',
+      );
+
+      setAmount('');
+      setSelectedCategory(null);
+      setCustomCategoryName('');
+      setNote('');
+      setDate(new Date());
+      Alert.alert('Saved', 'Expense saved.');
+    } catch (error) {
+      console.log(error);
+      const message = error instanceof Error ? error.message : String(error);
+      Alert.alert('Error', message);
+    }
   };
 
   return (
