@@ -1,6 +1,7 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,6 +10,7 @@ import {
 } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 
+import { router } from 'expo-router';
 import { getDb } from '../db/database';
 import { type Theme } from '../theme/colors';
 import { useTheme } from '../theme/ThemeContext';
@@ -290,7 +292,9 @@ export default function HomeScreen() {
       </View>
 
       <View>
-        <Text style={styles.sectionLabel}>Recent Transactions</Text>
+        <Pressable onPress={() => router.push('/transactions')}>
+          <Text style={styles.sectionLabel}>Recent Transactions ›</Text>
+        </Pressable>
         <View style={styles.transactionList}>
           {recent.length === 0 ? (
             <Text style={styles.emptyText}>No transactions yet</Text>
