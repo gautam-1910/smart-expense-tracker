@@ -295,6 +295,9 @@ export default function HomeScreen() {
         <Pressable onPress={() => router.push('/transactions')}>
           <Text style={styles.sectionLabel}>Recent Transactions ›</Text>
         </Pressable>
+        <Pressable onPress={() => router.push('/budget')}>
+          <Text style={styles.sectionLabel}>Budget & Goals ›</Text>
+        </Pressable>
         <View style={styles.transactionList}>
           {recent.length === 0 ? (
             <Text style={styles.emptyText}>No transactions yet</Text>
