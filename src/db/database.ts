@@ -44,6 +44,10 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
       category TEXT,
       monthlyLimit REAL
     );
+    CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
   `);
 
   const row = await db.getFirstAsync<{ count: number }>(
@@ -63,4 +67,18 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
   }
 
   return db;
+}
+export async function getSetting(key: string, fallback: string): Promise<string> {
+  const row = await getDb().getFirstAsync<{ value: string }>(
+    'SELECT value FROM settings WHERE key = ?',
+    [key]
+  );
+  return row?.value ?? fallback;
+}
+
+export async function setSetting(key: string, value: string): Promise<void> {
+  await getDb().runAsync(
+    'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+    [key, value]
+  );
 }

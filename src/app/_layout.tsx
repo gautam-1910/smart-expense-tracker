@@ -5,9 +5,19 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { useColorScheme, View } from 'react-native';
 import { initDatabase } from '../db/database';
-import { ThemeProvider as AppThemeProvider } from '../theme/ThemeContext';
+import { ThemeProvider as AppThemeProvider, useTheme } from '../theme/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
+
+function ThemedApp() {
+  const { isDark } = useTheme();
+  return (
+    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+      <AnimatedSplashOverlay />
+      <AppTabs />
+    </ThemeProvider>
+  );
+}
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -21,18 +31,16 @@ export default function TabLayout() {
         setDbReady(true);
       });
   }, []);
+
+  if (!dbReady) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#0E1110' : '#F4F7F5' }} />
+    );
+  }
+
   return (
     <AppThemeProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        {dbReady ? (
-          <>
-            <AnimatedSplashOverlay />
-            <AppTabs />
-          </>
-        ) : (
-          <View style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#0E1110' : '#F4F7F5' }} />
-        )}
-      </ThemeProvider>
+      <ThemedApp />
     </AppThemeProvider>
   );
 }

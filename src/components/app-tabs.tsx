@@ -19,6 +19,9 @@ export default function AppTabs() {
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} /> }} />
       <Tabs.Screen name="transactions" options={{ href: null }} />
       <Tabs.Screen name="budget" options={{ href: null }} />
+      <Tabs.Screen name="about" options={{ href: null }} />
+      <Tabs.Screen name="edit-profile" options={{ href: null }} />
+      <Tabs.Screen name="help-support" options={{ href: null }} />
     </Tabs>
   );
 }
