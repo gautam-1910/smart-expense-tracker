@@ -11,9 +11,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
+
+import { scanReceipt } from '@/utils/scan-receipt';
 import { getDb } from '../db/database';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -207,6 +210,18 @@ export default function AddScreen() {
       Alert.alert('Error', message);
     }
   };
+  const handleScan = async (source: 'camera' | 'gallery') => {
+    try {
+      const r = await scanReceipt(source);
+      if (!r) {
+        Alert.alert('Scan', 'No image selected.');
+        return;
+      }
+      Alert.alert('OCR TEXT', r.text || '(empty text)');
+    } catch (e) {
+      Alert.alert('Scan failed', e instanceof Error ? e.message : String(e));
+    }
+  };
 
   return (
     <ScrollView
@@ -214,6 +229,8 @@ export default function AddScreen() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
+       <TouchableOpacity onPress={() => handleScan('camera')}><Text>Scan (camera)</Text></TouchableOpacity>
+       <TouchableOpacity onPress={() => handleScan('gallery')}><Text>Scan (gallery)</Text></TouchableOpacity>
       <View style={styles.amountRow}>
         <Text style={styles.currency}>₹</Text>
         <TextInput
