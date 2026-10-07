@@ -15,7 +15,8 @@ import {
   View,
 } from 'react-native';
 
-
+import { parseReceipt } from '@/utils/parse-receipt';
+import { buildRows } from '@/utils/receipt-rows';
 import { scanReceipt } from '@/utils/scan-receipt';
 import { getDb } from '../db/database';
 import { useTheme } from '../theme/ThemeContext';
@@ -50,7 +51,7 @@ export default function AddScreen() {
   const [note, setNote] = useState('');
   const [date, setDate] = useState(() => new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+  
   const canSave = amount.trim().length > 0 && selectedCategory !== null;
   const isOthers = selectedCategory?.toLowerCase() === 'others';
 
@@ -217,7 +218,22 @@ export default function AddScreen() {
         Alert.alert('Scan', 'No image selected.');
         return;
       }
-      Alert.alert('OCR TEXT', r.text || '(empty text)');
+      const rows = buildRows(r);
+      const parsed = parseReceipt(rows);
+  
+      if (parsed.amount === null) {
+        Alert.alert('Could not find a total', rows.join('\n'));
+      } else {
+        setAmount(String(parsed.amount));
+      }
+      if (parsed.date) {
+        const [y, m, d] = parsed.date.split('-').map(Number);
+        setDate(new Date(y, m - 1, d, 12, 0));
+      }
+      if (parsed.merchant) {
+        const name = parsed.merchant;
+        setNote((prev) => (prev.trim() ? prev : name));
+      }
     } catch (e) {
       Alert.alert('Scan failed', e instanceof Error ? e.message : String(e));
     }
@@ -229,8 +245,8 @@ export default function AddScreen() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-       <TouchableOpacity onPress={() => handleScan('camera')}><Text>Scan (camera)</Text></TouchableOpacity>
-       <TouchableOpacity onPress={() => handleScan('gallery')}><Text>Scan (gallery)</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => handleScan('camera')}><Text>Scan (camera)</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => handleScan('gallery')}><Text>Scan (gallery)</Text></TouchableOpacity>
       <View style={styles.amountRow}>
         <Text style={styles.currency}>₹</Text>
         <TextInput
